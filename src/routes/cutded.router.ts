@@ -1,21 +1,39 @@
 // External Dependencies
+import cors from "cors"
 import express, { Request, Response } from "express";
 import { Db, MongoError, ObjectId } from "mongodb";
 import {collections} from"../services/database.service";
 import FOOD from "../models/FOOD";
 // import REVIEW from "../models/review"
 import { calcRating } from "../rating";
+import REVIEW from "../models/review";
 //import { isConstructorDeclaration, isConstructorTypeNode } from "typescript";
 // Global Config
 export const cutdedRouter = express.Router();
 
 cutdedRouter.use(express.json());
 // GET
-cutdedRouter.get("/", async (_req: Request, res: Response) => {
+cutdedRouter.get("/food", async (_req: Request, res: Response) => {
     try {
        const foods = (await collections.food!.find({}).toArray());
 
         res.status(200).send(foods);
+    } catch (error) {
+        if (error instanceof MongoError){
+            res.status(500).send(error.message);
+            return;
+        }     
+        else{
+            res.status(500).send("unknown error");
+            return;
+        }
+    }
+});
+cutdedRouter.get("/review", async (_req: Request, res: Response) => {
+    try {
+       const foodsreview = (await collections.review!.find({}).toArray());
+
+        res.status(200).send(foodsreview);
     } catch (error) {
         if (error instanceof MongoError){
             res.status(500).send(error.message);
@@ -33,10 +51,29 @@ cutdedRouter.get("/:id", async (req: Request, res: Response) => {
     const query = { _id: new ObjectId(id) };
 })
 // POST
-cutdedRouter.post("/", async (req: Request, res: Response) => {
+cutdedRouter.post("/food", async (req: Request, res: Response) => {
     try {
         const newFood = req.body as FOOD;
         const result = await collections.food!.insertOne(newFood);
+
+        result
+            ? res.status(201).send(`Successfully created a new food with id ${result.insertedId}`)
+            : res.status(500).send("Failed to create a new food.");
+        } catch (error) {
+            if (error instanceof MongoError){
+                res.status(400).send(error.message);
+                return;
+            }     
+            else{
+                res.status(400).send("unknown error");
+                return;
+        }
+    }
+});
+cutdedRouter.post("/review", async (req: Request, res: Response) => {
+    try {
+        const newReview = req.body as REVIEW;
+        const result = await collections.review!.insertOne(newReview);
 
         result
             ? res.status(201).send(`Successfully created a new food with id ${result.insertedId}`)
@@ -81,8 +118,8 @@ cutdedRouter.delete("/:id", async (req: Request, res: Response) => {
 
     try {
         const query = { _id: new ObjectId(id) };
-        const result = await collections.review!.deleteOne(query);
-
+        const result = await collections.food!.deleteOne(query);
+        
         if (result && result.deletedCount) {
             res.status(202).send(`Successfully removed food with id ${id}`);
         } else if (!result) {

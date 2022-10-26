@@ -13,11 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cutdedRouter = void 0;
-// External Dependencies
 const express_1 = __importDefault(require("express"));
 const mongodb_1 = require("mongodb");
 const database_service_1 = require("../services/database.service");
+// import REVIEW from "../models/review"
 const rating_1 = require("../rating");
+//import { isConstructorDeclaration, isConstructorTypeNode } from "typescript";
 // Global Config
 exports.cutdedRouter = express_1.default.Router();
 exports.cutdedRouter.use(express_1.default.json());
@@ -92,7 +93,7 @@ exports.cutdedRouter.delete("/:id", (req, res) => __awaiter(void 0, void 0, void
     const id = (_c = req === null || req === void 0 ? void 0 : req.params) === null || _c === void 0 ? void 0 : _c.id;
     try {
         const query = { _id: new mongodb_1.ObjectId(id) };
-        const result = yield database_service_1.collections.review.deleteOne(query);
+        const result = yield database_service_1.collections.food.deleteOne(query);
         if (result && result.deletedCount) {
             res.status(202).send(`Successfully removed food with id ${id}`);
         }
@@ -138,7 +139,7 @@ exports.cutdedRouter.post("/rating", (req, res) => __awaiter(void 0, void 0, voi
         datfood.rating = (0, rating_1.calcRating)(datfood.rating, req.body.rating, datfood.nresponse);
         datfood.nresponse += 1;
         yield ((_e = database_service_1.collections.food) === null || _e === void 0 ? void 0 : _e.replaceOne(query, datfood));
-        res.status(201).send("ควยไรwongnaiนี่cunaiwong!");
+        res.status(201).send("created!");
         return;
     }
     catch (error) {
