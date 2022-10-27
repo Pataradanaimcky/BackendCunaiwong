@@ -1,4 +1,5 @@
 // External Dependencies
+//import cors for frontend dev
 import cors from "cors"
 import express, { Request, Response } from "express";
 import { Db, MongoError, ObjectId } from "mongodb";
